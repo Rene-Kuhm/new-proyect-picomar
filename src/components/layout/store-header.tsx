@@ -14,13 +14,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useCart } from '@/lib/cart-context'
 
 interface StoreHeaderProps {
   user: {
     businessName: string
     role: string
   } | null
-  cartItemCount?: number
 }
 
 const storeNav = [
@@ -28,8 +28,10 @@ const storeNav = [
   { href: '/pedidos', label: 'Mis Pedidos' },
 ]
 
-export function StoreHeader({ user, cartItemCount = 0 }: StoreHeaderProps) {
+export function StoreHeader({ user }: StoreHeaderProps) {
   const pathname = usePathname()
+  const { cart } = useCart()
+  const cartItemCount = cart.itemCount
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

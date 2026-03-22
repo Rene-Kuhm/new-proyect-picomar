@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import { StoreHeader } from '@/components/layout/store-header'
+import { CartProvider } from '@/lib/cart-context'
 
 export default async function StoreLayout({
   children,
@@ -9,26 +10,28 @@ export default async function StoreLayout({
   const session = await auth()
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <StoreHeader
-        user={
-          session?.user
-            ? {
-                businessName: session.user.businessName,
-                role: session.user.role,
-              }
-            : null
-        }
-      />
-      <main className="flex-1">{children}</main>
-      <footer className="border-t py-6">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>
-            &copy; {new Date().getFullYear()} PICOMAR® - Uniendo La Pampa y el
-            Mar desde 1961.
-          </p>
-        </div>
-      </footer>
-    </div>
+    <CartProvider>
+      <div className="min-h-screen flex flex-col">
+        <StoreHeader
+          user={
+            session?.user
+              ? {
+                  businessName: session.user.businessName,
+                  role: session.user.role,
+                }
+              : null
+          }
+        />
+        <main className="flex-1">{children}</main>
+        <footer className="border-t py-6">
+          <div className="container text-center text-sm text-muted-foreground">
+            <p>
+              &copy; {new Date().getFullYear()} PICOMAR® - Uniendo La Pampa y el
+              Mar desde 1961.
+            </p>
+          </div>
+        </footer>
+      </div>
+    </CartProvider>
   )
 }
