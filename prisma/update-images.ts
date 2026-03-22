@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter })
 // Real seafood images from Unsplash (free to use)
 const productImages: Record<string, string> = {
   // Filetes
-  'filet-de-merluza': 'https://images.unsplash.com/photo-1510130113356-d9eff9b89e38?w=600&h=600&fit=crop',
+  'filet-de-merluza': 'https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=600&h=600&fit=crop',
   'filet-de-gatuzo': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=600&fit=crop',
   'filet-de-lenguado': 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=600&fit=crop',
   'filet-de-abadejo': 'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=600&h=600&fit=crop',
@@ -37,8 +37,8 @@ const productImages: Record<string, string> = {
   'salmon-ahumado': 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=600&h=600&fit=crop',
 
   // Conservas
-  'atun-en-aceite-x24': 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=600&fit=crop',
-  'caballa-en-aceite-x24': 'https://images.unsplash.com/photo-1620820490574-51f8d3f4c7db?w=600&h=600&fit=crop',
+  'atun-en-aceite-x24': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=600&fit=crop',
+  'caballa-en-aceite-x24': 'https://images.unsplash.com/photo-1551326844-4df70f78d0e9?w=600&h=600&fit=crop',
   'sardinas-x24': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop',
 }
 
