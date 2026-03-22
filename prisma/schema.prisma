@@ -1,0 +1,263 @@
+// PICOMAR - B2B Wholesale Seafood Platform
+// Database Schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// AUTH & USERS
+// ==========================================
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  BLOCKED
+}
+
+model User {
+  id             String     @id @default(cuid())
+  email          String     @unique
+  password       String
+  role           UserRole   @default(CLIENT)
+  status         UserStatus @default(PENDING)
+
+  // Business info
+  businessName   String     // Razón social
+  cuit           String     @unique // CUIT/CUIL
+  phone          String
+  address        String
+  city           String
+  province       String
+
+  // Relations
+  zoneId         String?
+  zone           DeliveryZone? @relation(fields: [zoneId], references: [id])
+  orders         Order[]
+  stockMovements StockMovement[]
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@map("users")
+}
+
+// ==========================================
+// PRODUCTS & CATEGORIES
+// ==========================================
+
+enum ProductUnit {
+  KG
+  UNIT
+  BOX
+  PACK
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  products    Product[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  name         String
+  slug         String      @unique
+  description  String?
+  sku          String      @unique
+  price        Decimal     @db.Decimal(10, 2)
+  unit         ProductUnit @default(KG)
+  minOrderQty  Decimal     @default(1) @db.Decimal(10, 2) // Cantidad mínima de pedido
+  stock        Decimal     @default(0) @db.Decimal(10, 2)
+  lowStockAlert Decimal    @default(10) @db.Decimal(10, 2) // Umbral alerta stock bajo
+  imageUrl     String?
+  isActive     Boolean     @default(true)
+  isFeatured   Boolean     @default(false) // Producto destacado
+
+  // Relations
+  categoryId   String
+  category     Category    @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  stockMovements StockMovement[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("products")
+}
+
+// ==========================================
+// ORDERS
+// ==========================================
+
+enum OrderStatus {
+  PENDING      // Pedido creado, esperando confirmación
+  CONFIRMED    // Admin confirmó el pedido
+  PREPARING    // En preparación
+  DISPATCHED   // Despachado en camión
+  DELIVERED    // Entregado
+  CANCELLED    // Cancelado
+}
+
+enum PaymentMethod {
+  CASH          // Efectivo contra entrega
+  TRANSFER      // Transferencia bancaria
+  DEBIT_CARD    // Tarjeta de débito
+  CREDIT_CARD   // Tarjeta de crédito
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique // PIC-2024-00001
+  status          OrderStatus   @default(PENDING)
+  total           Decimal       @db.Decimal(10, 2)
+  subtotal        Decimal       @db.Decimal(10, 2)
+
+  // Payment
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+
+  // Delivery
+  deliveryDate    DateTime?
+  deliveryNotes   String?
+
+  // Relations
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  deliveryZoneId  String
+  deliveryZone    DeliveryZone  @relation(fields: [deliveryZoneId], references: [id])
+  items           OrderItem[]
+  payment         Payment?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+
+  // Relations
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// ==========================================
+// PAYMENTS (MercadoPago integration)
+// ==========================================
+
+model Payment {
+  id              String        @id @default(cuid())
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  amount          Decimal       @db.Decimal(10, 2)
+  mpPaymentId     String?       // MercadoPago payment ID
+  mpPreferenceId  String?       // MercadoPago preference ID
+  mpStatus        String?       // MercadoPago status detail
+  paidAt          DateTime?
+
+  // Relations
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id])
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+// ==========================================
+// LOGISTICS - Delivery Zones
+// ==========================================
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+model DeliveryZone {
+  id           String      @id @default(cuid())
+  name         String      @unique // "Santa Rosa", "General Pico", "Olavarría"
+  description  String?
+  deliveryDays DayOfWeek[] // Días de entrega para esta zona
+  isActive     Boolean     @default(true)
+  sortOrder    Int         @default(0)
+
+  // Relations
+  users        User[]
+  orders       Order[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("delivery_zones")
+}
+
+// ==========================================
+// STOCK MANAGEMENT
+// ==========================================
+
+enum StockMovementType {
+  IN         // Entrada de mercadería
+  OUT        // Salida por pedido
+  ADJUSTMENT // Ajuste manual
+}
+
+model StockMovement {
+  id          String            @id @default(cuid())
+  type        StockMovementType
+  quantity    Decimal           @db.Decimal(10, 2)
+  reason      String?
+  previousStock Decimal         @db.Decimal(10, 2)
+  newStock    Decimal           @db.Decimal(10, 2)
+
+  // Relations
+  productId   String
+  product     Product           @relation(fields: [productId], references: [id])
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime          @default(now())
+
+  @@map("stock_movements")
+}
