@@ -1,4 +1,5 @@
-import { PrismaClient } from '@/generated/prisma'
+// Simple Prisma client - works in Node.js runtime (not Edge)
+import { PrismaClient } from '@/generated/prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
