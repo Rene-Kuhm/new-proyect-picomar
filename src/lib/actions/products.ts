@@ -49,8 +49,17 @@ export async function getProducts(params?: {
     prisma.product.count({ where }),
   ])
 
+  // Serialize Decimal objects to numbers for Client Components
+  const serialized = products.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    minOrderQty: Number(p.minOrderQty),
+    stock: Number(p.stock),
+    lowStockAlert: Number(p.lowStockAlert),
+  }))
+
   return {
-    data: products,
+    data: serialized,
     total,
     page,
     limit,

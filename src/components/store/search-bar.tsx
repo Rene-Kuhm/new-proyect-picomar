@@ -29,7 +29,7 @@ export function SearchBar({ defaultValue = '' }: SearchBarProps) {
   )
 
   return (
-    <div className="relative flex-1 max-w-md">
+    <div className="relative flex-1 w-full sm:max-w-md">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         placeholder="Buscar productos..."
@@ -38,7 +38,7 @@ export function SearchBar({ defaultValue = '' }: SearchBarProps) {
         onKeyDown={(e) => {
           if (e.key === 'Enter') handleSearch(value)
         }}
-        className="pl-10"
+        className="pl-10 h-9 sm:h-10 text-sm"
       />
     </div>
   )

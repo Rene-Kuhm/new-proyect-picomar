@@ -40,7 +40,7 @@ export function CategoryFilter({
 
   return (
     <Select value={selectedCategory || 'all'} onValueChange={handleChange}>
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-full sm:w-[200px] h-9 sm:h-10 text-sm">
         <SelectValue placeholder="Categoría" />
       </SelectTrigger>
       <SelectContent>

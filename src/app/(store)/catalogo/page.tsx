@@ -33,16 +33,16 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
   ])
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="flex flex-col gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl font-bold">Catálogo de Productos</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">Catálogo de Productos</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Explorá nuestra variedad de productos del mar
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <SearchBar defaultValue={params.search} />
           <CategoryFilter
             categories={categories}
@@ -50,7 +50,7 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
           />
         </div>
 
-        <Suspense fallback={<div>Cargando productos...</div>}>
+        <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Cargando productos...</div>}>
           <ProductGrid
             products={productsResult.data}
             totalPages={productsResult.totalPages}

@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingCart, Fish, User, LogOut, Menu, Package } from 'lucide-react'
+import { useState } from 'react'
+import { ShoppingCart, Fish, User, LogOut, Menu, Package, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,10 +32,11 @@ export function StoreHeader({ user }: StoreHeaderProps) {
   const pathname = usePathname()
   const { cart } = useCart()
   const cartItemCount = cart.itemCount
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="mx-auto w-full max-w-7xl flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Fish className="h-8 w-8 text-blue-600" />
@@ -71,37 +72,33 @@ export function StoreHeader({ user }: StoreHeaderProps) {
           {user ? (
             <>
               {/* Cart */}
-              <Button variant="ghost" size="icon" asChild className="relative">
-                <Link href="/carrito">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartItemCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]"
-                    >
-                      {cartItemCount}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
+              <Link href="/carrito" className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted transition-colors">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]"
+                  >
+                    {cartItemCount}
+                  </Badge>
+                )}
+              </Link>
 
               {/* User Menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
-                    <span className="hidden sm:inline">{user.businessName}</span>
-                  </Button>
+                <DropdownMenuTrigger className="flex items-center gap-2 h-9 px-3 rounded-md text-sm font-medium hover:bg-muted transition-colors outline-none">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">{user.businessName}</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/perfil" className="flex items-center gap-2">
+                  <DropdownMenuItem>
+                    <Link href="/perfil" className="flex items-center gap-2 w-full">
                       <User className="h-4 w-4" />
                       Mi Perfil
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/pedidos" className="flex items-center gap-2">
+                  <DropdownMenuItem>
+                    <Link href="/pedidos" className="flex items-center gap-2 w-full">
                       <Package className="h-4 w-4" />
                       Mis Pedidos
                     </Link>
@@ -109,16 +106,16 @@ export function StoreHeader({ user }: StoreHeaderProps) {
                   {user.role === 'ADMIN' && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center gap-2">
+                      <DropdownMenuItem>
+                        <Link href="/admin" className="flex items-center gap-2 w-full">
                           ⚙️ Panel Admin
                         </Link>
                       </DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/api/auth/signout" className="flex items-center gap-2 text-red-600">
+                  <DropdownMenuItem>
+                    <Link href="/api/auth/signout" className="flex items-center gap-2 w-full text-red-600">
                       <LogOut className="h-4 w-4" />
                       Cerrar Sesión
                     </Link>
@@ -128,44 +125,49 @@ export function StoreHeader({ user }: StoreHeaderProps) {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link href="/login">Iniciar Sesión</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Registrarse</Link>
-              </Button>
+              <Link href="/login">
+                <Button variant="ghost">Iniciar Sesión</Button>
+              </Link>
+              <Link href="/register">
+                <Button>Registrarse</Button>
+              </Link>
             </div>
           )}
 
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <nav className="flex flex-col gap-4 mt-8">
-                {user &&
-                  storeNav.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        'text-lg font-medium',
-                        pathname.startsWith(item.href)
-                          ? 'text-primary'
-                          : 'text-muted-foreground'
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+          {/* Mobile Menu Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted transition-colors"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t bg-background px-4 py-4">
+          <nav className="flex flex-col gap-3">
+            {user &&
+              storeNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    'text-base font-medium py-2',
+                    pathname.startsWith(item.href)
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

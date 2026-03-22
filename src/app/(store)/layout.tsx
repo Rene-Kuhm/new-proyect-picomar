@@ -11,7 +11,7 @@ export default async function StoreLayout({
 
   return (
     <CartProvider>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-dvh flex flex-col">
         <StoreHeader
           user={
             session?.user
@@ -24,7 +24,7 @@ export default async function StoreLayout({
         />
         <main className="flex-1">{children}</main>
         <footer className="border-t py-6">
-          <div className="container text-center text-sm text-muted-foreground">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
             <p>
               &copy; {new Date().getFullYear()} PICOMAR® - Uniendo La Pampa y el
               Mar desde 1961.
